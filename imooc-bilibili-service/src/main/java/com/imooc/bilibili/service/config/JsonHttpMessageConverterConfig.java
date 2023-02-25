@@ -17,18 +17,6 @@ import java.util.List;
 
 @Configuration
 public class JsonHttpMessageConverterConfig {
-
-
-    public static void main(String[] args){
-        List<Object> list = new ArrayList<>();
-        Object o = new Object();
-        list.add(o);
-        list.add(o);
-        System.out.println(list.size());
-        System.out.println(JSONObject.toJSONString(list));
-        System.out.println(JSONObject.toJSONString(list, SerializerFeature.DisableCircularReferenceDetect));
-    }
-
     @Bean
     @Primary
     public HttpMessageConverters fastJsonHttpMessageConverters(){

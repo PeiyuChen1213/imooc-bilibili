@@ -24,12 +24,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-//@Configuration
+@Configuration
 public class RocketMQConfig {
 
     @Value("${rocketmq.name.server.address}")
     private String nameServerAddr;
 
+//    redis的工具类
     @Autowired
     private RedisTemplate<String, String> redisTemplate;
 
@@ -38,7 +39,9 @@ public class RocketMQConfig {
 
     @Bean("momentsProducer")
     public DefaultMQProducer momentsProducer() throws Exception{
+//        实现分组的方式消费
         DefaultMQProducer producer = new DefaultMQProducer(UserMomentsConstant.GROUP_MOMENTS);
+//        设置nameServerAddr
         producer.setNamesrvAddr(nameServerAddr);
         producer.start();
         return producer;

@@ -7,6 +7,7 @@ public class FollowingGroup {
 
     private Long id;
 
+//    当前用户的用户id
     private Long userId;
 
     private String name;
@@ -17,6 +18,7 @@ public class FollowingGroup {
 
     private Date updateTime;
 
+//    关注列表的信息
     private List<UserInfo> followingUserInfoList;
 
     public Long getId() {

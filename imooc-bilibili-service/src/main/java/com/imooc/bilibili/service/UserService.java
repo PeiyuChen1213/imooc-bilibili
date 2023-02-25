@@ -30,18 +30,20 @@ public class UserService {
     @Autowired
     private ElasticSearchService elasticSearchService;
 
-    @Transactional
     public void addUser(User user) {
         String phone = user.getPhone();
         if(StringUtils.isNullOrEmpty(phone)){
             throw new ConditionException("手机号不能为空！");
         }
+        //查询数据库判断该用户是否已经在数据库当中了
         User dbUser = this.getUserByPhone(phone);
         if(dbUser != null){
             throw new ConditionException("该手机号已经注册！");
         }
         Date now = new Date();
+        //根据时间戳获取盐值
         String salt = String.valueOf(now.getTime());
+        //得到经过RSA加密的密码
         String password = user.getPassword();
         String rawPassword;
         try{
@@ -49,6 +51,7 @@ public class UserService {
         }catch (Exception e){
             throw new ConditionException("密码解密失败！");
         }
+        //生成对应的md5的密码
         String md5Password = MD5Util.sign(rawPassword, salt, "UTF-8");
         user.setSalt(salt);
         user.setPassword(md5Password);
@@ -72,6 +75,12 @@ public class UserService {
         return userDao.getUserByPhone(phone);
     }
 
+    /**
+     * 登陆接口
+     * @param user 登录的用于信息
+     * @return 登录成功生成对应的Token
+     * @throws Exception
+     */
     public String login(User user) throws Exception{
         String phone = user.getPhone() == null ? "" : user.getPhone();
         String email = user.getEmail() == null ? "" : user.getEmail();
@@ -133,6 +142,7 @@ public class UserService {
     }
 
     public PageResult<UserInfo> pageListUserInfos(JSONObject params) {
+//        计算limit的其实参数和size参数
         Integer no = params.getInteger("no");
         Integer size = params.getInteger("size");
         params.put("start", (no-1)*size);

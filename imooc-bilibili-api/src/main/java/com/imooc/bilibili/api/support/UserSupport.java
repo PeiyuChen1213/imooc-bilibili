@@ -16,11 +16,18 @@ public class UserSupport {
     @Autowired
     private UserService userService;
 
+    /**
+     * 获得当前登录的UserId
+     * @return
+     */
     public Long getCurrentUserId() {
+        //获取请求相关信息的类
         ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         HttpServletRequest request = requestAttributes.getRequest();
+//       从请求头当中获取当前的token
         String token = request.getHeader("token");
         Long userId = TokenUtil.verifyToken(token);
+//       userId一般都是大于0的
         if(userId < 0) {
             throw new ConditionException("非法用户");
         }

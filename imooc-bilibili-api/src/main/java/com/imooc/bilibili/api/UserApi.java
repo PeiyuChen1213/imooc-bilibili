@@ -28,6 +28,10 @@ public class UserApi {
     @Autowired
     private UserFollowingService userFollowingService;
 
+    /**
+     * 获取用户信息
+     * @return
+     */
     @GetMapping("/users")
     public JsonResponse<User> getUserInfo(){
         Long userId = userSupport.getCurrentUserId();
@@ -35,18 +39,33 @@ public class UserApi {
         return new JsonResponse<>(user);
     }
 
+    /**
+     * 获取公钥
+     * @return
+     */
     @GetMapping("/rsa-pks")
     public JsonResponse<String> getRsaPulicKey(){
         String pk = RSAUtil.getPublicKeyStr();
         return new JsonResponse<>(pk);
     }
 
+    /**
+     * 用户 注册
+     * @param user
+     * @return
+     */
     @PostMapping("/users")
     public JsonResponse<String> addUser(@RequestBody User user){
         userService.addUser(user);
         return JsonResponse.success();
     }
 
+    /**
+     * 登录方法
+     * @param user
+     * @return 返回token给前端
+     * @throws Exception
+     */
     @PostMapping("/user-tokens")
     public JsonResponse<String> login(@RequestBody User user) throws Exception{
         String token = userService.login(user);
@@ -69,16 +88,26 @@ public class UserApi {
         return JsonResponse.success();
     }
 
+    /**
+     *
+     * @param no 当前页
+     * @param size 每页的记录数
+     * @param nick 昵称
+     * @return
+     */
     @GetMapping("/user-infos")
     public JsonResponse<PageResult<UserInfo>> pageListUserInfos(@RequestParam Integer no, @RequestParam Integer size, String nick){
         Long userId = userSupport.getCurrentUserId();
+//        封装一个传入的参数对象
         JSONObject params = new JSONObject();
         params.put("no", no);
         params.put("size", size);
         params.put("nick", nick);
         params.put("userId", userId);
         PageResult<UserInfo> result = userService.pageListUserInfos(params);
+//        如果查出的数据是大于0 的
         if(result.getTotal() > 0){
+//            判断关注状态 确认是否有关注
             List<UserInfo> checkedUserInfoList = userFollowingService.checkFollowingStatus(result.getList(), userId);
             result.setList(checkedUserInfoList);
         }

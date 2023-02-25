@@ -29,7 +29,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @ServerEndpoint("/imserver/{token}")
 public class WebSocketService {
 
-    private final Logger logger =  LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private static final AtomicInteger ONLINE_COUNT = new AtomicInteger(0);
 
@@ -43,35 +43,36 @@ public class WebSocketService {
 
     private static ApplicationContext APPLICATION_CONTEXT;
 
-    public static void setApplicationContext(ApplicationContext applicationContext){
+    public static void setApplicationContext(ApplicationContext applicationContext) {
         WebSocketService.APPLICATION_CONTEXT = applicationContext;
     }
 
     @OnOpen
-    public void openConnection(Session session, @PathParam("token") String token){
-        try{
+    public void openConnection(Session session, @PathParam("token") String token) {
+        try {
             this.userId = TokenUtil.verifyToken(token);
-        }catch (Exception ignored){}
+        } catch (Exception ignored) {
+        }
         this.sessionId = session.getId();
         this.session = session;
-        if(WEBSOCKET_MAP.containsKey(sessionId)){
+        if (WEBSOCKET_MAP.containsKey(sessionId)) {
             WEBSOCKET_MAP.remove(sessionId);
             WEBSOCKET_MAP.put(sessionId, this);
-        }else{
+        } else {
             WEBSOCKET_MAP.put(sessionId, this);
             ONLINE_COUNT.getAndIncrement();
         }
         logger.info("用户连接成功：" + sessionId + "，当前在线人数为：" + ONLINE_COUNT.get());
-        try{
+        try {
             this.sendMessage("0");
-        }catch (Exception e){
+        } catch (Exception e) {
             logger.error("连接异常");
         }
     }
 
     @OnClose
-    public void closeConnection(){
-        if(WEBSOCKET_MAP.containsKey(sessionId)){
+    public void closeConnection() {
+        if (WEBSOCKET_MAP.containsKey(sessionId)) {
             WEBSOCKET_MAP.remove(sessionId);
             ONLINE_COUNT.getAndDecrement();
         }
@@ -79,31 +80,31 @@ public class WebSocketService {
     }
 
     @OnMessage
-    public void onMessage(String message){
+    public void onMessage(String message) {
         logger.info("用户信息：" + sessionId + "，报文：" + message);
-        if(!StringUtil.isNullOrEmpty(message)){
-            try{
+        if (!StringUtil.isNullOrEmpty(message)) {
+            try {
                 //群发消息
-                for(Map.Entry<String, WebSocketService> entry : WEBSOCKET_MAP.entrySet()){
+                for (Map.Entry<String, WebSocketService> entry : WEBSOCKET_MAP.entrySet()) {
                     WebSocketService webSocketService = entry.getValue();
-                    DefaultMQProducer danmusProducer = (DefaultMQProducer)APPLICATION_CONTEXT.getBean("danmusProducer");
+                    DefaultMQProducer danmusProducer = (DefaultMQProducer) APPLICATION_CONTEXT.getBean("danmusProducer");
                     JSONObject jsonObject = new JSONObject();
                     jsonObject.put("message", message);
                     jsonObject.put("sessionId", webSocketService.getSessionId());
                     Message msg = new Message(UserMomentsConstant.TOPIC_DANMUS, jsonObject.toJSONString().getBytes(StandardCharsets.UTF_8));
                     RocketMQUtil.asyncSendMsg(danmusProducer, msg);
                 }
-                if(this.userId != null){
+                if (this.userId != null) {
                     //保存弹幕到数据库
                     Danmu danmu = JSONObject.parseObject(message, Danmu.class);
                     danmu.setUserId(userId);
                     danmu.setCreateTime(new Date());
-                    DanmuService danmuService = (DanmuService)APPLICATION_CONTEXT.getBean("danmuService");
+                    DanmuService danmuService = (DanmuService) APPLICATION_CONTEXT.getBean("danmuService");
                     danmuService.asyncAddDanmu(danmu);
                     //保存弹幕到redis
                     danmuService.addDanmusToRedis(danmu);
                 }
-            }catch (Exception e){
+            } catch (Exception e) {
                 logger.error("弹幕接收出现问题");
                 e.printStackTrace();
             }
@@ -111,7 +112,7 @@ public class WebSocketService {
     }
 
     @OnError
-    public void onError(Throwable error){
+    public void onError(Throwable error) {
     }
 
     public void sendMessage(String message) throws IOException {
@@ -119,11 +120,11 @@ public class WebSocketService {
     }
 
     //或直接指定时间间隔，例如：5秒
-    @Scheduled(fixedRate=5000)
+    @Scheduled(fixedRate = 5000)
     private void noticeOnlineCount() throws IOException {
-        for(Map.Entry<String, WebSocketService> entry : WebSocketService.WEBSOCKET_MAP.entrySet()){
+        for (Map.Entry<String, WebSocketService> entry : WebSocketService.WEBSOCKET_MAP.entrySet()) {
             WebSocketService webSocketService = entry.getValue();
-            if(webSocketService.session.isOpen()){
+            if (webSocketService.session.isOpen()) {
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("onlineCount", ONLINE_COUNT.get());
                 jsonObject.put("msg", "当前在线人数为" + ONLINE_COUNT.get());

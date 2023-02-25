@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -36,7 +35,9 @@ public class ApiLimitedRoleAspect {
 
     @Before("check() && @annotation(apiLimitedRole)")
     public void doBefore(JoinPoint joinPoint, ApiLimitedRole apiLimitedRole){
+        //获取当前得userId
         Long userId = userSupport.getCurrentUserId();
+        //根据UserId查看当前用户有哪些角色
         List<UserRole> userRoleList = userRoleService.getUserRoleByUserId(userId);
         String[] limitedRoleCodeList = apiLimitedRole.limitedRoleCodeList();
         Set<String> limitedRoleCodeSet = Arrays.stream(limitedRoleCodeList).collect(Collectors.toSet());

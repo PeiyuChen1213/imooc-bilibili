@@ -4,8 +4,10 @@ import java.util.List;
 
 public class PageResult<T> {
 
+//    总记录数
     private Integer total;
 
+//    存放数据的列表
     private List<T> list;
 
     public PageResult(Integer total, List<T> list){
