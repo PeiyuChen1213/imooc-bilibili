@@ -30,7 +30,7 @@ public class RocketMQConfig {
     @Value("${rocketmq.name.server.address}")
     private String nameServerAddr;
 
-//    redis的工具类
+    //    redis的工具类
     @Autowired
     private RedisTemplate<String, String> redisTemplate;
 
@@ -38,7 +38,7 @@ public class RocketMQConfig {
     private UserFollowingService userFollowingService;
 
     @Bean("momentsProducer")
-    public DefaultMQProducer momentsProducer() throws Exception{
+    public DefaultMQProducer momentsProducer() throws Exception {
 //        实现分组的方式消费
         DefaultMQProducer producer = new DefaultMQProducer(UserMomentsConstant.GROUP_MOMENTS);
 //        设置nameServerAddr
@@ -48,31 +48,40 @@ public class RocketMQConfig {
     }
 
     @Bean("momentsConsumer")
-    public DefaultMQPushConsumer momentsConsumer() throws Exception{
+    public DefaultMQPushConsumer momentsConsumer() throws Exception {
         DefaultMQPushConsumer consumer = new DefaultMQPushConsumer(UserMomentsConstant.GROUP_MOMENTS);
         consumer.setNamesrvAddr(nameServerAddr);
         consumer.subscribe(UserMomentsConstant.TOPIC_MOMENTS, "*");
         consumer.registerMessageListener(new MessageListenerConcurrently() {
             @Override
-            public ConsumeConcurrentlyStatus consumeMessage(List<MessageExt> msgs, ConsumeConcurrentlyContext context){
+            public ConsumeConcurrentlyStatus consumeMessage(List<MessageExt> msgs, ConsumeConcurrentlyContext context) {
+//                由于我们发送动态的时候只发一条数据，所以监听到的也只有一条
                 MessageExt msg = msgs.get(0);
-                if(msg == null){
+                if (msg == null) {
                     return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
                 }
+//              拿到msg的内容
                 String bodyStr = new String(msg.getBody());
+//              将拿到的json数据转成java对象
                 UserMoment userMoment = JSONObject.toJavaObject(JSONObject.parseObject(bodyStr), UserMoment.class);
                 Long userId = userMoment.getUserId();
-                List<UserFollowing>fanList = userFollowingService.getUserFans(userId);
-                for(UserFollowing fan : fanList){
+//              获得粉丝的列表
+                List<UserFollowing> fanList = userFollowingService.getUserFans(userId);
+                for (UserFollowing fan : fanList) {
+//                  取到粉丝的id 拼接成一个key
                     String key = "subscribed-" + fan.getUserId();
+//                    获取到当前粉丝的动态推送列表 因为不止一个用户不止一个关注
                     String subscribedListStr = redisTemplate.opsForValue().get(key);
                     List<UserMoment> subscribedList;
-                    if(StringUtil.isNullOrEmpty(subscribedListStr)){
+                    if (StringUtil.isNullOrEmpty(subscribedListStr)) {
                         subscribedList = new ArrayList<>();
-                    }else{
+                    } else {
+//                       将字符串转成列表
                         subscribedList = JSONArray.parseArray(subscribedListStr, UserMoment.class);
                     }
+//                    添加动态
                     subscribedList.add(userMoment);
+//                    将粉丝的动态列表重新set到redis数据库
                     redisTemplate.opsForValue().set(key, JSONObject.toJSONString(subscribedList));
                 }
                 return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
@@ -83,7 +92,7 @@ public class RocketMQConfig {
     }
 
     @Bean("danmusProducer")
-    public DefaultMQProducer danmusProducer() throws Exception{
+    public DefaultMQProducer danmusProducer() throws Exception {
         // 实例化消息生产者Producer
         DefaultMQProducer producer = new DefaultMQProducer(UserMomentsConstant.GROUP_DANMUS);
         // 设置NameServer的地址
@@ -94,7 +103,7 @@ public class RocketMQConfig {
     }
 
     @Bean("danmusConsumer")
-    public DefaultMQPushConsumer danmusConsumer() throws Exception{
+    public DefaultMQPushConsumer danmusConsumer() throws Exception {
         // 实例化消费者
         DefaultMQPushConsumer consumer = new DefaultMQPushConsumer(UserMomentsConstant.GROUP_DANMUS);
         // 设置NameServer的地址
@@ -112,7 +121,7 @@ public class RocketMQConfig {
                 String sessionId = jsonObject.getString("sessionId");
                 String message = jsonObject.getString("message");
                 WebSocketService webSocketService = WebSocketService.WEBSOCKET_MAP.get(sessionId);
-                if(webSocketService.getSession().isOpen()){
+                if (webSocketService.getSession().isOpen()) {
                     try {
                         webSocketService.sendMessage(message);
                     } catch (IOException e) {

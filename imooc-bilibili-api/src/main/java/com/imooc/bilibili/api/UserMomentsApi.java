@@ -25,6 +25,12 @@ public class UserMomentsApi {
     private UserSupport userSupport;
 
 
+    /**
+     * 发送动态
+     * @param userMoment 动态
+     * @return
+     * @throws Exception
+     */
     @ApiLimitedRole(limitedRoleCodeList = {AuthRoleConstant.ROLE_LV0})
     @DataLimited
     @PostMapping("/user-moments")
@@ -35,6 +41,10 @@ public class UserMomentsApi {
         return JsonResponse.success();
     }
 
+    /**
+     * 获取动态
+     * @return 动态的列表
+     */
     @GetMapping("/user-subscribed-moments")
     public JsonResponse<List<UserMoment>> getUserSubscribedMoments(){
         Long userId = userSupport.getCurrentUserId();
