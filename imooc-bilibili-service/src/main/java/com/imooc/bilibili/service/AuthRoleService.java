@@ -30,6 +30,7 @@ public class AuthRoleService {
         return authRoleMenuService.getAuthRoleMenusByRoleIds(roleIdSet);
     }
 
+//    根据code获取角色
     public AuthRole getRoleByCode(String code) {
         return authRoleDao.getRoleByCode(code);
     }

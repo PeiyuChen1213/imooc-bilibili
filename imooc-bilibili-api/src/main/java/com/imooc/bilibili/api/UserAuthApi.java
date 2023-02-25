@@ -17,8 +17,13 @@ public class UserAuthApi {
     @Autowired
     private UserAuthService userAuthService;
 
+    /**
+     * 获取当前的权限
+     * @return
+     */
     @GetMapping("/user-authorities")
     public JsonResponse<UserAuthorities> getUserAuthorities(){
+//        获取当前的用户id
         Long userId = userSupport.getCurrentUserId();
         UserAuthorities userAuthorities = userAuthService.getUserAuthorities(userId);
         return new JsonResponse<>(userAuthorities);
