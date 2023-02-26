@@ -33,15 +33,18 @@ public class ApiLimitedRoleAspect {
     public void check(){
     }
 
-    @Before("check() && @annotation(apiLimitedRole)")
+    @Before("check()&& @annotation(apiLimitedRole)")
     public void doBefore(JoinPoint joinPoint, ApiLimitedRole apiLimitedRole){
         //获取当前得userId
         Long userId = userSupport.getCurrentUserId();
         //根据UserId查看当前用户有哪些角色
         List<UserRole> userRoleList = userRoleService.getUserRoleByUserId(userId);
         String[] limitedRoleCodeList = apiLimitedRole.limitedRoleCodeList();
+//        接口需要的权限角色
         Set<String> limitedRoleCodeSet = Arrays.stream(limitedRoleCodeList).collect(Collectors.toSet());
+//        当前用户的权限角色
         Set<String> roleCodeSet = userRoleList.stream().map(UserRole::getRoleCode).collect(Collectors.toSet());
+//        取其中的交集
         roleCodeSet.retainAll(limitedRoleCodeSet);
         if(roleCodeSet.size() > 0){
             throw new ConditionException("权限不足！");
