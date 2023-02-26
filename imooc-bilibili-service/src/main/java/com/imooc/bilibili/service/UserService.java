@@ -155,6 +155,14 @@ public class UserService {
         return new PageResult<>(total, list);
     }
 
+    /**
+     *  返回一个accessToken 和refreshToken 一个接入token一个刷新token
+     *  接入token更多是登录当中使用的 有效期比较短
+     *  刷新token是用于其他的请求的 有效期比较长
+     * @param user
+     * @return
+     * @throws Exception
+     */
     public Map<String, Object> loginForDts(User user) throws Exception {
         String phone = user.getPhone() == null ? "" : user.getPhone();
         String email = user.getEmail() == null ? "" : user.getEmail();
@@ -180,7 +188,7 @@ public class UserService {
         Long userId = dbUser.getId();
         String accessToken = TokenUtil.generateToken(userId);
         String refreshToken = TokenUtil.generateRefreshToken(userId);
-        //保存refresh token到数据库
+        //保存refresh token到数据库 先删除后添加以实现更新的操作
         userDao.deleteRefreshTokenByUserId(userId);
         userDao.addRefreshToken(refreshToken, userId, new Date());
         Map<String, Object> result = new HashMap<>();
