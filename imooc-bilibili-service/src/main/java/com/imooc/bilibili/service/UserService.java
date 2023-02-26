@@ -197,24 +197,33 @@ public class UserService {
         return result;
     }
 
+//    退出登录之后就删除掉refreshToken
     public void logout(String refreshToken, Long userId) {
         userDao.deleteRefreshToken(refreshToken, userId);
     }
 
+    /**
+     * 当refreshToken还没过期的时候可以用来刷新登录用的accessToken
+     * @param refreshToken
+     * @return
+     * @throws Exception
+     */
     public String refreshAccessToken(String refreshToken) throws Exception {
+//        从数据库当中获取refreshToken
         RefreshTokenDetail refreshTokenDetail = userDao.getRefreshTokenDetail(refreshToken);
         if (refreshTokenDetail == null) {
             throw new ConditionException("555", "token过期！");
         }
+//        重新生成新的accessToken
         Long userId = refreshTokenDetail.getUserId();
         return TokenUtil.generateToken(userId);
     }
 
-    public List<UserInfo> batchGetUserInfoByUserIds(Set<Long> userIdList) {
-        return userDao.batchGetUserInfoByUserIds(userIdList);
-    }
-
     public String getRefreshTokenByUserId(Long userId) {
         return userDao.getRefreshTokenByUserId(userId);
+    }
+
+    public List<UserInfo> batchGetUserInfoByUserIds(Set<Long> userIdList) {
+        return userDao.batchGetUserInfoByUserIds(userIdList);
     }
 }

@@ -130,6 +130,11 @@ public class UserApi {
         return new JsonResponse<>(map);
     }
 
+    /**
+     * 退出登录 删除掉refreshToken
+     * @param request
+     * @return
+     */
     @DeleteMapping("/refresh-tokens")
     public JsonResponse<String> logout(HttpServletRequest request) {
         String refreshToken = request.getHeader("refreshToken");
@@ -138,6 +143,12 @@ public class UserApi {
         return JsonResponse.success();
     }
 
+    /**
+     * 刷新接入token
+     * @param request
+     * @return
+     * @throws Exception
+     */
     @PostMapping("/access-tokens")
     public JsonResponse<String> refreshAccessToken(HttpServletRequest request) throws Exception {
         String refreshToken = request.getHeader("refreshToken");
