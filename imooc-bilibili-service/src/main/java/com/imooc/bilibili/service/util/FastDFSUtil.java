@@ -44,22 +44,36 @@ public class FastDFSUtil {
     @Value("${fdfs.http.storage-addr}")
     private String httpFdfsStorageAddr;
 
+    /**
+     * 获取文件的类型--就是获取文件的后缀
+     * @param file
+     * @return
+     */
     public String getFileType(MultipartFile file){
         if(file == null){
             throw new ConditionException("非法文件！");
         }
         String fileName = file.getOriginalFilename();
+//        获取.所在的索引
         int index = fileName.lastIndexOf(".");
         return fileName.substring(index+1);
     }
 
     //上传
+
+    /**
+     * 上传并返回文件的路径
+     * @param file
+     * @return
+     * @throws Exception
+     */
     public String uploadCommonFile(MultipartFile file) throws Exception {
         Set<MetaData> metaDataSet = new HashSet<>();
         String fileType = this.getFileType(file);
         StorePath storePath = fastFileStorageClient.uploadFile(file.getInputStream(), file.getSize(), fileType, metaDataSet);
         return storePath.getPath();
     }
+
 
     public String uploadCommonFile(File file, String fileType) throws Exception {
         Set<MetaData> metaDataSet = new HashSet<>();
@@ -68,13 +82,14 @@ public class FastDFSUtil {
         return storePath.getPath();
     }
 
-    //上传可以断点续传的文件
+    //上传可以断点续传的文件 -- 用于第一片文件上传
     public String uploadAppenderFile(MultipartFile file) throws Exception{
         String fileType = this.getFileType(file);
         StorePath storePath = appendFileStorageClient.uploadAppenderFile(DEFAULT_GROUP, file.getInputStream(), file.getSize(), fileType);
         return storePath.getPath();
     }
 
+    //后续的文件上传 可以使用这个方法
     public void modifyAppenderFile(MultipartFile file, String filePath, long offset) throws Exception{
         appendFileStorageClient.modifyFile(DEFAULT_GROUP, filePath, file.getInputStream(), file.getSize(), offset);
     }
@@ -127,6 +142,7 @@ public class FastDFSUtil {
         File file = this.multipartFileToFile(multipartFile);
         long fileLength = file.length();
         int count = 1;
+        // 开始切片
         for(int i = 0; i < fileLength; i += SLICE_SIZE){
             RandomAccessFile randomAccessFile = new RandomAccessFile(file, "r");
             randomAccessFile.seek(i);
@@ -143,6 +159,7 @@ public class FastDFSUtil {
         //删除临时文件
         file.delete();
     }
+
 
     public File multipartFileToFile(MultipartFile multipartFile) throws Exception{
         String originalFileName = multipartFile.getOriginalFilename();

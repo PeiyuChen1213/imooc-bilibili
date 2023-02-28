@@ -14,12 +14,28 @@ public class FileApi {
     @Autowired
     private FileService fileService;
 
+    /**
+     * 返回md5加密之后的文件
+     * @param file
+     * @return
+     * @throws Exception
+     */
     @PostMapping("/md5files")
     public JsonResponse<String> getFileMD5(MultipartFile file) throws Exception {
         String fileMD5 = fileService.getFileMD5(file);
         return new JsonResponse<>(fileMD5);
     }
 
+
+    /**
+     * 文件切片
+     * @param slice
+     * @param fileMd5
+     * @param sliceNo
+     * @param totalSliceNo
+     * @return
+     * @throws Exception
+     */
     @PutMapping("/file-slices")
     public JsonResponse<String> uploadFileBySlices(MultipartFile slice,
                                                    String fileMd5,

@@ -2,7 +2,6 @@ package com.imooc.bilibili.api;
 
 import com.imooc.bilibili.domain.JsonResponse;
 import com.imooc.bilibili.domain.Video;
-import com.imooc.bilibili.service.DemoService;
 import com.imooc.bilibili.service.ElasticSearchService;
 import com.imooc.bilibili.service.feign.MsDeclareService;
 import com.imooc.bilibili.service.util.FastDFSUtil;
@@ -17,8 +16,6 @@ import java.util.Map;
 @RestController
 public class DemoApi {
 
-    @Autowired
-    private DemoService demoService;
 
     @Autowired
     private FastDFSUtil fastDFSUtil;
@@ -29,10 +26,6 @@ public class DemoApi {
     @Autowired
     private MsDeclareService msDeclareService;
 
-    @GetMapping("/query")
-    public Long query(Long id){
-        return demoService.query(id);
-    }
 
     @GetMapping("/slices")
     public void slices(MultipartFile file) throws Exception {
