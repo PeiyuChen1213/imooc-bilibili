@@ -24,7 +24,9 @@ public class FileService {
                                          String fileMD5,
                                          Integer sliceNo,
                                          Integer totalSliceNo) throws Exception {
+//      实现秒传功能 逻辑: 上传文件的同时会根据md5 将文件的地址也放到数据库当中去
         File dbFileMD5 = fileDao.getFileByMD5(fileMD5);
+//      如果之前上传过相关的数据,就直接返回地址
         if(dbFileMD5 != null){
             return dbFileMD5.getUrl();
         }
@@ -35,6 +37,7 @@ public class FileService {
             dbFileMD5.setMd5(fileMD5);
             dbFileMD5.setUrl(url);
             dbFileMD5.setType(fastDFSUtil.getFileType(slice));
+//            将文件路径地址传到字符串当中去
             fileDao.addFile(dbFileMD5);
         }
         return url;

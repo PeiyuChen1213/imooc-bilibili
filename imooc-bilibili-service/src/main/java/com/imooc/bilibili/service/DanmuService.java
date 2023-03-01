@@ -72,6 +72,11 @@ public class DanmuService {
         return list;
     }
 
+
+    /**
+     * 添加弹幕到redis
+     * @param danmu
+     */
     public void addDanmusToRedis(Danmu danmu) {
         String key = DANMU_KEY + danmu.getVideoId();
         String value = redisTemplate.opsForValue().get(key);

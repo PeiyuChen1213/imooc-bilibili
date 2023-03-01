@@ -103,6 +103,7 @@ public class FastDFSUtil {
         String pathKey = PATH_KEY + fileMd5;
         String uploadedSizeKey = UPLOADED_SIZE_KEY + fileMd5;
         String uploadedNoKey = UPLOADED_NO_KEY + fileMd5;
+//        查看当前已经上传的数据大小
         String uploadedSizeStr = redisTemplate.opsForValue().get(uploadedSizeKey);
         Long uploadedSize = 0L;
         if (!StringUtil.isNullOrEmpty(uploadedSizeStr)) {
@@ -183,11 +184,19 @@ public class FastDFSUtil {
     }
 
 
+    /**
+     * 视频分片在线观看
+     * @param request
+     * @param response
+     * @param path
+     * @throws Exception
+     */
     public void viewVideoOnlineBySlices(HttpServletRequest request,
                                         HttpServletResponse response,
                                         String path) throws Exception {
         FileInfo fileInfo = fastFileStorageClient.queryFileInfo(DEFAULT_GROUP, path);
         long totalFileSize = fileInfo.getFileSize();
+//        获取访问路径
         String url = httpFdfsStorageAddr + path;
         Enumeration<String> headerNames = request.getHeaderNames();
         Map<String, Object> headers = new HashMap<>();
