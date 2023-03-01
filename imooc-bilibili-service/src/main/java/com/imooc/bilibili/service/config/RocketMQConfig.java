@@ -120,7 +120,7 @@ public class RocketMQConfig {
                 JSONObject jsonObject = JSONObject.parseObject(bodyStr);
                 String sessionId = jsonObject.getString("sessionId");
                 String message = jsonObject.getString("message");
-//              只有当连接的时候的会发送对应的弹幕到
+//              只有当连接的时候的会发送对应的弹幕到对应的websocket
                 WebSocketService webSocketService = WebSocketService.WEBSOCKET_MAP.get(sessionId);
                 if (webSocketService.getSession().isOpen()) {
                     try {
