@@ -21,6 +21,7 @@ public class VideoComment {
 
     private Date updateTime;
 
+    // 嵌套多级评论
     private List<VideoComment> childList;
 
     private UserInfo userInfo;

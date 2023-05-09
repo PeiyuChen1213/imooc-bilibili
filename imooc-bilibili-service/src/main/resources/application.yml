@@ -1,0 +1,10 @@
+#profile
+spring:
+  profiles:
+    active: test
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.bilibili.domain
+  configuration:
+    #日志开启
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

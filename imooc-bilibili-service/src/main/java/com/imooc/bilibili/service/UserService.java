@@ -14,6 +14,7 @@ import com.imooc.bilibili.service.util.TokenUtil;
 import com.mysql.cj.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -163,6 +164,7 @@ public class UserService {
      * @return
      * @throws Exception
      */
+    @Transactional
     public Map<String, Object> loginForDts(User user) throws Exception {
         String phone = user.getPhone() == null ? "" : user.getPhone();
         String email = user.getEmail() == null ? "" : user.getEmail();

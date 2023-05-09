@@ -319,6 +319,7 @@ public class VideoService {
      * @param userId 用户id
      */
     public List<Video> recommend(Long userId) throws TasteException {
+        // 获取用户的偏好
         List<UserPreference> list = videoDao.getAllUserPreference();
         //创建数据模型
         DataModel dataModel = this.createDataModel(list);
